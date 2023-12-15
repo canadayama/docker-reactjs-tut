@@ -1,0 +1,25 @@
+FROM node:20-alpine as build
+
+ENV LANG=C.UTF-8
+
+# Set working directory.
+WORKDIR /app
+
+# Copy the package.json to working directory.
+COPY ./app/package.json .
+
+# Download the packages
+RUN npm install
+
+# Copy all files.
+COPY ./app .
+
+ARG REACT_APP_NAME
+ENV REACT_APP_NAME=${REACT_APP_NAME}
+
+RUN npm run build
+
+
+FROM nginx:1.25-alpine
+
+COPY --from=build /app/build /usr/share/nginx/html
